@@ -1,5 +1,5 @@
 use oauth2::helpers::variant_name;
-#[cfg(feature = "ring")]
+#[cfg(not(feature = "rustcrypto"))]
 use ring::{hmac, rand, signature as ring_signature, signature::KeyPair};
 #[cfg(feature = "rustcrypto")]
 use rsa::pkcs1::FromRsaPrivateKey;
@@ -192,7 +192,7 @@ impl JsonWebKey<CoreJwsSigningAlgorithm, CoreJsonWebKeyType, CoreJsonWebKeyUse> 
                 };
                 crypto::verify_rsa_signature(
                     self,
-                    #[cfg(feature = "ring")]
+                    #[cfg(not(feature = "rustcrypto"))]
                     &ring_signature::RSA_PKCS1_2048_8192_SHA256,
                     #[cfg(feature = "rustcrypto")]
                     rsa::PaddingScheme::new_pkcs1v15_sign(Some(rsa::Hash::SHA2_256)),
@@ -209,7 +209,7 @@ impl JsonWebKey<CoreJwsSigningAlgorithm, CoreJsonWebKeyType, CoreJsonWebKeyUse> 
                 };
                 crypto::verify_rsa_signature(
                     self,
-                    #[cfg(feature = "ring")]
+                    #[cfg(not(feature = "rustcrypto"))]
                     &ring_signature::RSA_PKCS1_2048_8192_SHA384,
                     #[cfg(feature = "rustcrypto")]
                     rsa::PaddingScheme::new_pkcs1v15_sign(Some(rsa::Hash::SHA2_384)),
@@ -226,7 +226,7 @@ impl JsonWebKey<CoreJwsSigningAlgorithm, CoreJsonWebKeyType, CoreJsonWebKeyUse> 
                 };
                 crypto::verify_rsa_signature(
                     self,
-                    #[cfg(feature = "ring")]
+                    #[cfg(not(feature = "rustcrypto"))]
                     &ring_signature::RSA_PKCS1_2048_8192_SHA512,
                     #[cfg(feature = "rustcrypto")]
                     rsa::PaddingScheme::new_pkcs1v15_sign(Some(rsa::Hash::SHA2_512)),
@@ -243,7 +243,7 @@ impl JsonWebKey<CoreJwsSigningAlgorithm, CoreJsonWebKeyType, CoreJsonWebKeyUse> 
                 };
                 crypto::verify_rsa_signature(
                     self,
-                    #[cfg(feature = "ring")]
+                    #[cfg(not(feature = "rustcrypto"))]
                     &ring_signature::RSA_PSS_2048_8192_SHA256,
                     #[cfg(feature = "rustcrypto")]
                     rsa::PaddingScheme::new_pss::<sha2::Sha256, _>(rand::rngs::OsRng),
@@ -260,7 +260,7 @@ impl JsonWebKey<CoreJwsSigningAlgorithm, CoreJsonWebKeyType, CoreJsonWebKeyUse> 
                 };
                 crypto::verify_rsa_signature(
                     self,
-                    #[cfg(feature = "ring")]
+                    #[cfg(not(feature = "rustcrypto"))]
                     &ring_signature::RSA_PSS_2048_8192_SHA384,
                     #[cfg(feature = "rustcrypto")]
                     rsa::PaddingScheme::new_pss::<sha2::Sha384, _>(rand::rngs::OsRng),
@@ -277,7 +277,7 @@ impl JsonWebKey<CoreJwsSigningAlgorithm, CoreJsonWebKeyType, CoreJsonWebKeyUse> 
                 };
                 crypto::verify_rsa_signature(
                     self,
-                    #[cfg(feature = "ring")]
+                    #[cfg(not(feature = "rustcrypto"))]
                     &ring_signature::RSA_PSS_2048_8192_SHA512,
                     #[cfg(feature = "rustcrypto")]
                     rsa::PaddingScheme::new_pss::<sha2::Sha512, _>(rand::rngs::OsRng),
@@ -309,7 +309,7 @@ impl JsonWebKey<CoreJwsSigningAlgorithm, CoreJsonWebKeyType, CoreJsonWebKeyUse> 
                     })
                     // crypto::verify_hmac(&mut mac, message, signature)
                 }
-                #[cfg(feature = "ring")]
+                #[cfg(not(feature = "rustcrypto"))]
                 {
                     crypto::verify_hmac(self, hmac::HMAC_SHA256, message, signature)
                 }
@@ -338,7 +338,7 @@ impl JsonWebKey<CoreJwsSigningAlgorithm, CoreJsonWebKeyType, CoreJsonWebKeyUse> 
                     })
                     // crypto::verify_hmac(&mut mac, message, signature)
                 }
-                #[cfg(feature = "ring")]
+                #[cfg(not(feature = "rustcrypto"))]
                 {
                     crypto::verify_hmac(self, hmac::HMAC_SHA384, message, signature)
                 }
@@ -367,7 +367,7 @@ impl JsonWebKey<CoreJwsSigningAlgorithm, CoreJsonWebKeyType, CoreJsonWebKeyUse> 
                     })
                     // crypto::verify_hmac(&mut mac, message, signature)
                 }
-                #[cfg(feature = "ring")]
+                #[cfg(not(feature = "rustcrypto"))]
                 {
                     crypto::verify_hmac(self, hmac::HMAC_SHA512, message, signature)
                 }
@@ -376,7 +376,7 @@ impl JsonWebKey<CoreJwsSigningAlgorithm, CoreJsonWebKeyType, CoreJsonWebKeyUse> 
                 if matches!(self.crv, Some(CoreJsonCurveType::P256)) {
                     crypto::verify_ec_signature(
                         self,
-                        #[cfg(feature = "ring")]
+                        #[cfg(not(feature = "rustcrypto"))]
                         &ring_signature::ECDSA_P256_SHA256_FIXED,
                         // #[cfg(feature = "rustcrypto")]
                         //                         &p256::ecdsa::VerifyingKey
@@ -393,7 +393,7 @@ impl JsonWebKey<CoreJwsSigningAlgorithm, CoreJsonWebKeyType, CoreJsonWebKeyUse> 
                 if matches!(self.crv, Some(CoreJsonCurveType::P384)) {
                     crypto::verify_ec_signature(
                         self,
-                        #[cfg(feature = "ring")]
+                        #[cfg(not(feature = "rustcrypto"))]
                         &ring_signature::ECDSA_P384_SHA384_FIXED,
                         // #[cfg(feature = "rustcrypto")]
                         message,
@@ -443,7 +443,7 @@ impl
         CoreJsonWebKey,
     > for CoreHmacKey
 {
-    #[cfg(feature = "ring")]
+    #[cfg(not(feature = "rustcrypto"))]
     fn sign(
         &self,
         signature_alg: &CoreJwsSigningAlgorithm,
@@ -525,11 +525,11 @@ impl<T> RngClone for T where T: rand::RngCore + Clone {}
 /// them.
 ///
 pub struct CoreRsaPrivateSigningKey {
-    #[cfg(feature = "ring")]
+    #[cfg(not(feature = "rustcrypto"))]
     key_pair: ring_signature::RsaKeyPair,
     #[cfg(feature = "rustcrypto")]
     key_pair: rsa::RsaPrivateKey,
-    #[cfg(feature = "ring")]
+    #[cfg(not(feature = "rustcrypto"))]
     rng: Box<dyn rand::SecureRandom>,
     #[cfg(feature = "rustcrypto")]
     rng: Box<dyn RngClone>,
@@ -542,7 +542,7 @@ impl CoreRsaPrivateSigningKey {
     pub fn from_pem(pem: &str, kid: Option<JsonWebKeyId>) -> Result<Self, String> {
         Self::from_pem_internal(
             pem,
-            #[cfg(feature = "ring")]
+            #[cfg(not(feature = "rustcrypto"))]
             Box::new(rand::SystemRandom::new()),
             #[cfg(feature = "rustcrypto")]
             Box::new(rand::rngs::OsRng),
@@ -552,7 +552,7 @@ impl CoreRsaPrivateSigningKey {
 
     pub(crate) fn from_pem_internal(
         pem: &str,
-        #[cfg(feature = "ring")] rng: Box<dyn rand::SecureRandom>,
+        #[cfg(not(feature = "rustcrypto"))] rng: Box<dyn rand::SecureRandom>,
         #[cfg(feature = "rustcrypto")] rng: Box<dyn RngClone>,
         kid: Option<JsonWebKeyId>,
     ) -> Result<Self, String> {
@@ -568,7 +568,7 @@ impl CoreRsaPrivateSigningKey {
         let der = base64::decode_config(base64_pem, config)
             .map_err(|_| "Failed to decode RSA private key body as base64".to_string())?;
 
-        #[cfg(feature = "ring")]
+        #[cfg(not(feature = "rustcrypto"))]
         let key_pair = ring_signature::RsaKeyPair::from_der(&der).map_err(|err| err.to_string())?;
         #[cfg(feature = "rustcrypto")]
         // TODO doesn't support pkcs8? :/
@@ -603,7 +603,7 @@ impl
         CoreJsonWebKey,
     > for CoreRsaPrivateSigningKey
 {
-    #[cfg(feature = "ring")]
+    #[cfg(not(feature = "rustcrypto"))]
     fn sign(
         &self,
         signature_alg: &CoreJwsSigningAlgorithm,
@@ -710,7 +710,7 @@ impl
         // crypto::sign_rsa(&self.key_pair, padding_alg, self.rng.as_ref(), msg)
     }
 
-    #[cfg(feature = "ring")]
+    #[cfg(not(feature = "rustcrypto"))]
     fn as_verification_key(&self) -> CoreJsonWebKey {
         let public_key = self.key_pair.public_key();
         CoreJsonWebKey {
@@ -835,7 +835,7 @@ impl JsonWebKeyUse for CoreJsonWebKeyUse {
 mod tests {
     #[cfg(feature = "rustcrypto")]
     use rand::rngs::mock::StepRng;
-    #[cfg(feature = "ring")]
+    #[cfg(not(feature = "rustcrypto"))]
     use ring::test::rand::FixedByteRandom;
     #[cfg(feature = "rustcrypto")]
     use std::sync::{Arc, Mutex};
@@ -1063,7 +1063,7 @@ mod tests {
             )
             .expect_err("verification should fail");
 
-        #[cfg(feature = "ring")]
+        #[cfg(not(feature = "rustcrypto"))]
         {
             //test p384
             verify_signature(
@@ -1445,7 +1445,7 @@ mod tests {
         let private_key = CoreRsaPrivateSigningKey::from_pem_internal(
             TEST_RSA_KEY,
             // Constant salt used for PSS test vectors below.
-            #[cfg(feature = "ring")]
+            #[cfg(not(feature = "rustcrypto"))]
             Box::new(FixedByteRandom { byte: 127 }),
             #[cfg(feature = "rustcrypto")]
             Box::new(StepRng::new(127, 0)),
@@ -1502,7 +1502,7 @@ mod tests {
         );
 
         // Cannot manage to replicate the signatures, with the same padding and rng...
-        #[cfg(feature = "ring")]
+        #[cfg(not(feature = "rustcrypto"))]
         expect_rsa_sig(
             &private_key,
             message,
@@ -1513,7 +1513,7 @@ mod tests {
             Ct5fBldLtAFfyBUnBVHfCYDxbim8S18OpMcYLj2m9+EQBjCk5kgC5UR8twI2GzBEUkoTiSsVRc6Z2OKqYg==",
         );
 
-        #[cfg(feature = "ring")]
+        #[cfg(not(feature = "rustcrypto"))]
         expect_rsa_sig(
             &private_key,
             message,
@@ -1524,7 +1524,7 @@ mod tests {
             Q1/7QQGSw6fHd6xej6SRSmgCccCQPSyQjdxITOFMAQ2LXiWv+1LYbMAnTb5JWD7GvBfpo/6BnX5KIiRjfQ==",
         );
 
-        #[cfg(feature = "ring")]
+        #[cfg(not(feature = "rustcrypto"))]
         expect_rsa_sig(
             &private_key,
             message,

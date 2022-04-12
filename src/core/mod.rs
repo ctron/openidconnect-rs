@@ -886,7 +886,7 @@ impl JwsSigningAlgorithm<CoreJsonWebKeyType> for CoreJwsSigningAlgorithm {
     }
 
     fn hash_bytes(&self, bytes: &[u8]) -> Result<Vec<u8>, String> {
-        #[cfg(feature = "ring")]
+        #[cfg(not(feature = "rustcrypto"))]
         use ring::digest::{digest, SHA256, SHA384, SHA512};
         #[cfg(feature = "rustcrypto")]
         use sha2::{Digest, Sha256, Sha384, Sha512};
@@ -895,7 +895,7 @@ impl JwsSigningAlgorithm<CoreJsonWebKeyType> for CoreJwsSigningAlgorithm {
             | CoreJwsSigningAlgorithm::RsaSsaPkcs1V15Sha256
             | CoreJwsSigningAlgorithm::RsaSsaPssSha256
             | CoreJwsSigningAlgorithm::EcdsaP256Sha256 => {
-                #[cfg(feature = "ring")]
+                #[cfg(not(feature = "rustcrypto"))]
                 {
                     digest(&SHA256, bytes).as_ref().to_vec()
                 }
@@ -910,7 +910,7 @@ impl JwsSigningAlgorithm<CoreJsonWebKeyType> for CoreJwsSigningAlgorithm {
             | CoreJwsSigningAlgorithm::RsaSsaPkcs1V15Sha384
             | CoreJwsSigningAlgorithm::RsaSsaPssSha384
             | CoreJwsSigningAlgorithm::EcdsaP384Sha384 => {
-                #[cfg(feature = "ring")]
+                #[cfg(not(feature = "rustcrypto"))]
                 {
                     digest(&SHA384, bytes).as_ref().to_vec()
                 }
@@ -925,7 +925,7 @@ impl JwsSigningAlgorithm<CoreJsonWebKeyType> for CoreJwsSigningAlgorithm {
             | CoreJwsSigningAlgorithm::RsaSsaPkcs1V15Sha512
             | CoreJwsSigningAlgorithm::RsaSsaPssSha512
             | CoreJwsSigningAlgorithm::EcdsaP521Sha512 => {
-                #[cfg(feature = "ring")]
+                #[cfg(not(feature = "rustcrypto"))]
                 {
                     digest(&SHA512, bytes).as_ref().to_vec()
                 }

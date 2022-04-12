@@ -1,5 +1,5 @@
 use num_bigint::{BigInt, Sign};
-#[cfg(feature = "ring")]
+#[cfg(not(feature = "rustcrypto"))]
 use ring::{hmac, rand::SecureRandom, signature as ring_signature};
 
 use crate::types::Base64UrlEncodedBytes;
@@ -9,13 +9,13 @@ use super::{jwk::CoreJsonCurveType, CoreJsonWebKey, CoreJsonWebKeyType};
 
 use std::ops::Deref;
 
-#[cfg(feature = "ring")]
+#[cfg(not(feature = "rustcrypto"))]
 pub fn sign_hmac(key: &[u8], hmac_alg: hmac::Algorithm, msg: &[u8]) -> Vec<u8> {
     let signing_key = hmac::Key::new(hmac_alg, key);
     hmac::sign(&signing_key, msg).as_ref().into()
 }
 
-#[cfg(feature = "ring")]
+#[cfg(not(feature = "rustcrypto"))]
 pub fn verify_hmac(
     key: &CoreJsonWebKey,
     hmac_alg: hmac::Algorithm,
@@ -30,7 +30,7 @@ pub fn verify_hmac(
         .map_err(|_| SignatureVerificationError::CryptoError("bad HMAC".to_string()))
 }
 
-#[cfg(feature = "ring")]
+#[cfg(not(feature = "rustcrypto"))]
 pub fn sign_rsa(
     key: &ring_signature::RsaKeyPair,
     padding_alg: &'static dyn ring_signature::RsaEncoding,
@@ -91,7 +91,7 @@ fn ec_public_key(
     }
 }
 
-#[cfg(feature = "ring")]
+#[cfg(not(feature = "rustcrypto"))]
 pub fn verify_rsa_signature(
     key: &CoreJsonWebKey,
     params: &ring_signature::RsaParameters,
@@ -145,7 +145,7 @@ pub fn verify_rsa_signature(
 /// to recover the X and Y coordinates from an octet string, the Octet-String-To-Elliptic-Curve-Point Conversion
 /// is used (Section 2.3.4 of https://www.secg.org/sec1-v2.pdf).
 
-#[cfg(feature = "ring")]
+#[cfg(not(feature = "rustcrypto"))]
 pub fn verify_ec_signature(
     key: &CoreJsonWebKey,
     params: &'static ring_signature::EcdsaVerificationAlgorithm,
@@ -238,7 +238,7 @@ mod tests {
             }
         )).unwrap();
 
-        #[cfg(feature = "ring")]
+        #[cfg(not(feature = "rustcrypto"))]
         {
             // Old way of verifying the jwt, take the modulus directly form the JWK
             let (n, e) = rsa_public_key(&key)

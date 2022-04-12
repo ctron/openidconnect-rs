@@ -918,7 +918,7 @@ new_secret_type![
 ];
 impl PartialEq for Nonce {
     fn eq(&self, other: &Self) -> bool {
-        #[cfg(feature = "ring")]
+        #[cfg(not(feature = "rustcrypto"))]
         {
             ring::constant_time::verify_slices_are_equal(
                 self.secret().as_bytes(),
